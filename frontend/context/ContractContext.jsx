@@ -1,9 +1,8 @@
-import { ethers } from "ethers";
-import React, { useContext } from "react";
+import { createContext, useContext } from "react";
 import { useContract, useProvider, useSigner } from "wagmi";
 import Contract from "../Voting.json";
 
-const ContractContext = React.createContext(null);
+const ContractContext = createContext();
 
 export function useContractProvider() {
   const context = useContext(ContractContext);
@@ -30,12 +29,7 @@ export const ContractProvider = ({ children }) => {
     signerOrProvider: signer,
   });
 
-  // const readContract = new ethers.Contract(contractAddress, Contract.abi, provider);
-  // const writeContract = new ethers.Contract(contractAddress, Contract.abi, signer);
-
   return (
     <ContractContext.Provider value={{ readContract, writeContract, provider }}>{children}</ContractContext.Provider>
   );
 };
-
-export default ContractContext;

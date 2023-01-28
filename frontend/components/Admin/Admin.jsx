@@ -2,19 +2,17 @@ import { useEffect, useState } from "react";
 import AddVoter from "../AddVoter/AddVoter";
 import ChangeStatus from "../ChangeStatus/ChangeStatus";
 import ListVoters from "../ListVoters/ListVoters";
-import { Divider, Flex, Heading, Text } from "@chakra-ui/react";
-import { useAccount, useContract, useProvider } from "wagmi";
+import { Divider, Flex, Heading } from "@chakra-ui/react";
+import { useAccount } from "wagmi";
 import { useContractProvider } from "@/context/ContractContext";
-import { useWorkflowStatusProvider } from "@/context/WorkflowStatusContext";
-import Contract from "../../Voting.json";
-import { ethers } from "ethers";
+import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
+import WorkflowStatus from "../WorkflowStatus/WorkflowStatus";
 
 const Admin = () => {
   const { address, isConnected } = useAccount();
   const { readContract } = useContractProvider();
 
-  const { workflowStatus } = useWorkflowStatusProvider();
-
+  const workflowStatus = useWorkflowStatusReadProvider();
   const [adminAddress, setAdminAddress] = useState(null);
 
   useEffect(() => {
@@ -29,6 +27,7 @@ const Admin = () => {
   return (
     <>
       <Flex direction="column" w="100%" alignItems="center">
+        <WorkflowStatus />
         {isConnected ? (
           address === adminAddress ? (
             <ChangeStatus />

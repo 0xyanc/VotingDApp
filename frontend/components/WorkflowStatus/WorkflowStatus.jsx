@@ -1,12 +1,35 @@
 import { useWorkflowStatusProvider } from "@/context/WorkflowStatusContext";
 import { Card, CardBody, Flex, Heading } from "@chakra-ui/react";
 import { statusMap } from "@/util/constants";
+import { useContractProvider } from "@/context/ContractContext";
+import { useEffect } from "react";
 
 const WorkflowStatus = () => {
-  const { workflowStatus } = useWorkflowStatusProvider();
+  const { readContract } = useContractProvider();
+  const [workflowStatus, setWorkflowStatus] = useWorkflowStatusProvider();
+
+  useEffect(() => {
+    getWorkflowStatus();
+    subscribeToStatusEvents();
+    return () => readContract.removeAllListeners("WorkflowStatusChange");
+  }, []);
+
+  const getWorkflowStatus = async () => {
+    const status = await readContract.workflowStatus();
+    console.log(`WorkflowStatus is ${status}`);
+    setWorkflowStatus(status);
+  };
+
+  const subscribeToStatusEvents = async () => {
+    console.log("Subscribe to WorkflowStatus Event");
+    readContract.on("WorkflowStatusChange", (previousStatus, newStatus) => {
+      setWorkflowStatus(newStatus);
+      console.log(`WorkflowStatus is ${newStatus}`);
+    });
+  };
 
   return (
-    <Flex h="10vh" pb="1rem" alignItems="center" m="auto">
+    <Flex h="10vh" alignItems="center" mb="2rem">
       <Card>
         <CardBody>
           <Flex direction="column" alignItems="center">

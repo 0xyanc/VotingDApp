@@ -16,17 +16,22 @@ const ListVoters = () => {
   useEffect(() => {
     loadVoters();
     subscribeToEvents();
-    return () => readContract.removeAllListeners();
+    return () => readContract.off("VoterRegistered", updateVotersListener);
   }, []);
 
   const subscribeToEvents = async () => {
     const startBlockNumber = await provider.getBlockNumber();
-    readContract.on("VoterRegistered", (voterAddress, event) => {
-      if (event.blockNumber <= startBlockNumber) return;
-      let voterList = [...votersRef.current, voterAddress];
-      setVoters(voterList);
-    });
+    readContract.on("VoterRegistered", (voterAddress, event) =>
+      updateVotersListener(voterAddress, event, startBlockNumber)
+    );
   };
+
+  const updateVotersListener = (voterAddress, event, startBlockNumber) => {
+    if (event.blockNumber <= startBlockNumber) return;
+    let voterList = [...votersRef.current, voterAddress];
+    setVoters(voterList);
+  };
+
   const loadVoters = async () => {
     const contractDeployBlock = parseInt(process.env.NEXT_PUBLIC_SC_DEPLOY_BLOCK);
     let voterRegisteredEvents = await readContract.queryFilter("VoterRegistered", contractDeployBlock);

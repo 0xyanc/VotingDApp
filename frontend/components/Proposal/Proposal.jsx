@@ -1,10 +1,10 @@
 import { useContractProvider } from "@/context/ContractContext";
-import { useWorkflowStatusProvider } from "@/context/WorkflowStatusContext";
-import { Button, Text, Card, CardHeader, CardBody, CardFooter, useToast } from "@chakra-ui/react";
+import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
+import { Button, Text, Card, CardBody, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 
 const Proposal = ({ proposal, hasVoted }) => {
-  const { workflowStatus } = useWorkflowStatusProvider();
+  const workflowStatus = useWorkflowStatusReadProvider();
   const { writeContract } = useContractProvider();
   const toast = useToast();
 

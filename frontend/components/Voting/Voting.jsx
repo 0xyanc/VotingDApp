@@ -1,18 +1,17 @@
 import { useContractProvider } from "@/context/ContractContext";
-import { useWorkflowStatusProvider } from "@/context/WorkflowStatusContext";
+import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
 import { Alert, AlertIcon, Divider, Flex, Heading, Text } from "@chakra-ui/react";
-import { ethers } from "ethers";
-import { useEffect, useRef, useState } from "react";
-import { useAccount, useBalance, useContract, useProvider } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 import AddProposal from "../AddProposal/AddProposal";
 import ListProposals from "../ListProposals/ListProposals";
-import Contract from "../../Voting.json";
+import WorkflowStatus from "../WorkflowStatus/WorkflowStatus";
 
 const Voting = () => {
   const { readContract, provider } = useContractProvider();
 
   const { address, isConnected } = useAccount();
-  const { workflowStatus } = useWorkflowStatusProvider();
+  const workflowStatus = useWorkflowStatusReadProvider();
 
   const [voter, setVoter] = useState(null);
   useEffect(() => {
@@ -20,24 +19,30 @@ const Voting = () => {
       checkVoterAddress();
       subscribeToEvents();
     }
-    return () => readContract.removeAllListeners();
+    return () => readContract.off("VoterRegistered", checkVoterListener);
   }, [address, isConnected]);
 
   const subscribeToEvents = async () => {
     const startBlockNumber = await provider.getBlockNumber();
-    readContract.on("VoterRegistered", (voterAddress, event) => {
-      if (event.blockNumber <= startBlockNumber) return;
-      console.log(address);
-      if (voterAddress === address) checkVoterAddress();
-    });
+    readContract.on("VoterRegistered", (voterAddress, event) =>
+      checkVoterListener(voterAddress, event, startBlockNumber)
+    );
+  };
+
+  const checkVoterListener = (voterAddress, event, startBlockNumber) => {
+    if (event.blockNumber <= startBlockNumber) return;
+    console.log(address);
+    if (voterAddress === address) checkVoterAddress();
   };
 
   const checkVoterAddress = async () => {
     try {
-      console.log(address);
-      // const readContract = new ethers.Contract(contractAddress, Contract.abi, provider);
       const voter = await readContract.getVoter(address);
-      setVoter(voter);
+      setVoter({
+        isRegistered: voter.isRegistered,
+        hasVoted: voter.hasVoted,
+        votedProposalId: voter.votedProposalId.toString(),
+      });
     } catch (err) {
       console.log(err);
       setVoter(null);
@@ -98,31 +103,34 @@ const Voting = () => {
     }
   };
   return (
-    <Flex direction="column" w="100%" alignItems="center">
-      {isConnected ? (
-        voter && voter.isRegistered ? (
-          <>
-            {renderAddProposalOrInfoBox()}
-            <Divider mt="1rem" mb="1rem" />
-            <ListProposals voter={voter} setVoter={setVoter} />
-          </>
+    <>
+      <Flex direction="column" w="100%" alignItems="center">
+        <WorkflowStatus />
+        {isConnected ? (
+          voter && voter.isRegistered ? (
+            <>
+              {renderAddProposalOrInfoBox()}
+              <Divider mt="1rem" mb="1rem" />
+              <ListProposals voter={voter} setVoter={setVoter} />
+            </>
+          ) : (
+            <Flex>
+              <Alert status="warning">
+                <AlertIcon />
+                You are not a whitelisted voter.
+              </Alert>
+            </Flex>
+          )
         ) : (
           <Flex>
-            <Alert status="warning">
+            <Alert status="info">
               <AlertIcon />
-              You are not a whitelisted voter.
+              Connect you wallet to start.
             </Alert>
           </Flex>
-        )
-      ) : (
-        <Flex>
-          <Alert status="info">
-            <AlertIcon />
-            Connect you wallet to start.
-          </Alert>
-        </Flex>
-      )}
-    </Flex>
+        )}
+      </Flex>
+    </>
   );
 };
 

@@ -2,11 +2,13 @@ import { Alert, AlertIcon, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useContractProvider } from "@/context/ContractContext";
 import Proposal from "../Proposal/Proposal";
-import { useWorkflowStatusProvider } from "@/context/WorkflowStatusContext";
+import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
+import { useAccount } from "wagmi";
 
 const ListProposals = ({ voter, setVoter }) => {
   const { readContract, provider } = useContractProvider();
-  const { workflowStatus } = useWorkflowStatusProvider();
+  const { address } = useAccount();
+  const workflowStatus = useWorkflowStatusReadProvider();
 
   const [winningProposal, setWinningProposal] = useState({ description: "", voteCount: 0, id: 0 });
 
@@ -21,10 +23,13 @@ const ListProposals = ({ voter, setVoter }) => {
     loadProposals();
     subscribeToProposalEvents();
     subscribeToVotedEvents();
-    // if (workflowStatus === 5) {
-    //   getWinningProposal();
-    // }
-    return () => readContract.removeAllListeners();
+    if (workflowStatus === 5) {
+      getWinningProposal();
+    }
+    return () => {
+      readContract.off("Voted", updateVoteListener);
+      readContract.off("ProposalRegistered", registerProposalListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -36,30 +41,43 @@ const ListProposals = ({ voter, setVoter }) => {
   const subscribeToVotedEvents = async () => {
     const startBlockNumber = await provider.getBlockNumber();
     readContract.on("Voted", async (voterAddress, proposalId, event) => {
-      if (event.blockNumber <= startBlockNumber) return;
-      let updatedProposals = [...proposalsRef];
-      const proposal = updatedProposals.filter((prop) => prop.id === proposalId);
-      proposal.voteCount++;
-      setProposals(updatedProposals);
-      let updatedVoter = voter;
-      updatedVoter.hasVoted = true;
-      setVoter(updatedVoter);
+      updateVoteListener(voterAddress, proposalId, event, startBlockNumber);
     });
+  };
+
+  const updateVoteListener = async (voterAddress, proposalId, event, startBlockNumber) => {
+    if (event.blockNumber <= startBlockNumber) return;
+    const propIdFromBN = proposalId.toString();
+    let updatedProposals = [...proposalsRef.current];
+    const index = updatedProposals.findIndex((prop) => prop.id === propIdFromBN);
+    updatedProposals[index].voteCount++;
+    setProposals(updatedProposals);
+    if (address === voterAddress) {
+      setVoter({
+        isRegistered: true,
+        hasVoted: true,
+        votedProposalId: propIdFromBN,
+      });
+    }
   };
 
   const subscribeToProposalEvents = async () => {
     const startBlockNumber = await provider.getBlockNumber();
-    readContract.on("ProposalRegistered", async (proposalId, event) => {
-      if (event.blockNumber <= startBlockNumber) return;
-      let proposalList = [...proposalsRef.current];
-      const proposal = await readContract.getOneProposal(proposalId);
-      proposalList.push({
-        id: proposalId,
-        description: proposal.description,
-        voteCount: proposal.voteCount.toString(),
-      });
-      setProposals(proposalList);
+    readContract.on("ProposalRegistered", async (proposalId, event) =>
+      registerProposalListener(proposalId, event, startBlockNumber)
+    );
+  };
+
+  const registerProposalListener = async (proposalId, event, startBlockNumber) => {
+    if (event.blockNumber <= startBlockNumber) return;
+    let proposalList = [...proposalsRef.current];
+    const proposal = await readContract.getOneProposal(proposalId);
+    proposalList.push({
+      id: proposalId.toString(),
+      description: proposal.description,
+      voteCount: proposal.voteCount.toString(),
     });
+    setProposals(proposalList);
   };
 
   const loadProposals = async () => {
@@ -81,11 +99,10 @@ const ListProposals = ({ voter, setVoter }) => {
   const getWinningProposal = async () => {
     const winningId = await readContract.winningProposalID();
     const winningProposal = await readContract.getOneProposal(winningId);
-    console.log(winningProposal);
     setWinningProposal({
       description: winningProposal.description,
       voteCount: winningProposal.voteCount.toString(),
-      id: winningId,
+      id: winningId.toString(),
     });
   };
 
@@ -106,7 +123,7 @@ const ListProposals = ({ voter, setVoter }) => {
                 <Alert status="warning" width="300px">
                   <AlertIcon />
                   <Flex direction="column">
-                    <Text as="span">There are no proposals on our DApp.</Text>
+                    <Text as="span">There are no submitted proposals yet.</Text>
                   </Flex>
                 </Alert>
               </Flex>

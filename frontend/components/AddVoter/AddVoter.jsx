@@ -2,8 +2,6 @@ import { Button, Flex, FormControl, FormErrorMessage, FormHelperText, Input, use
 import { ethers } from "ethers";
 import { useState } from "react";
 import { useContractProvider } from "@/context/ContractContext";
-import Contract from "../../Voting.json";
-import { useContract, useSigner } from "wagmi";
 
 const AddVoter = () => {
   const toast = useToast();

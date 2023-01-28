@@ -1,41 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useContractProvider } from "./ContractContext";
+import { createContext, useContext, useEffect, useState } from "react";
 
-const WorkflowStatusContext = React.createContext(null);
+const WorkflowStatusContext = createContext();
 
-export function useWorkflowStatusProvider() {
-  const context = useContext(WorkflowStatusContext);
+export const useWorkflowStatusProvider = () => {
+  return useContext(WorkflowStatusContext);
+};
 
-  if (!context) {
-    throw new Error("useWorkflowStatusProvider must be used within a WorkflowStatusProvider");
-  }
-  return context;
-}
+export const useWorkflowStatusReadProvider = () => {
+  const [workflowStatus] = useContext(WorkflowStatusContext);
+  return workflowStatus;
+};
 
 export const WorkflowStatusProvider = ({ children }) => {
-  const { readContract } = useContractProvider();
-  const [workflowStatus, setWorkflowStatus] = useState("");
-
-  useEffect(() => {
-    getWorkflowStatus();
-    subscribeToStatusEvents();
-    return () => readContract.removeAllListeners();
-  }, []);
-
-  const getWorkflowStatus = async () => {
-    const status = await readContract.workflowStatus();
-    console.log(`WorkflowStatus is ${status}`);
-    setWorkflowStatus(status);
-  };
-
-  const subscribeToStatusEvents = async () => {
-    readContract.on("WorkflowStatusChange", (previousStatus, newStatus) => {
-      setWorkflowStatus(newStatus);
-      console.log(`WorkflowStatus is ${newStatus}`);
-    });
-  };
-
-  return <WorkflowStatusContext.Provider value={{ workflowStatus }}>{children}</WorkflowStatusContext.Provider>;
+  const workflowStatusCtx = useState(0);
+  return <WorkflowStatusContext.Provider value={workflowStatusCtx}>{children}</WorkflowStatusContext.Provider>;
 };
 
 export default WorkflowStatusContext;

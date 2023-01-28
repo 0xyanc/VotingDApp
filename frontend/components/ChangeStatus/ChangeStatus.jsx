@@ -2,10 +2,10 @@ import { Button, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import * as Constants from "@/util/constants";
 import { useContractProvider } from "@/context/ContractContext";
-import { useWorkflowStatusProvider } from "@/context/WorkflowStatusContext";
+import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
 
 const ChangeStatus = () => {
-  const { workflowStatus } = useWorkflowStatusProvider();
+  const workflowStatus = useWorkflowStatusReadProvider();
   const { writeContract } = useContractProvider();
 
   const [waitTransaction, setWaitTransaction] = useState(false);
