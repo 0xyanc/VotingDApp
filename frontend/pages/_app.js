@@ -5,8 +5,7 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
-import { hardhat } from 'wagmi/chains';
-// import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { hardhat, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { ChakraProvider } from '@chakra-ui/react';
 import Layout from '@/components/Layout/Layout';
@@ -14,7 +13,7 @@ import { ContractProvider } from '@/context/ContractContext';
 import { WorkflowStatusProvider } from '@/context/WorkflowStatusContext';
 
 const { chains, provider } = configureChains(
-  [hardhat],
+  [hardhat, goerli],
   [
     publicProvider()
   ]
