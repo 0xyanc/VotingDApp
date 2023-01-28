@@ -1,9 +1,15 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const WorkflowStatusContext = createContext();
 
 export const useWorkflowStatusProvider = () => {
-  return useContext(WorkflowStatusContext);
+  const context = useContext(WorkflowStatusContext);
+
+  if (context === undefined) {
+    throw new Error("useWorkflowStatusProvider was used outside of its Provider");
+  }
+
+  return context;
 };
 
 export const useWorkflowStatusReadProvider = () => {

@@ -15,6 +15,7 @@ export function useContractProvider() {
 
 export const ContractProvider = ({ children }) => {
   const contractAddress = process.env.NEXT_PUBLIC_SC_ADDRESS;
+  console.log(`-- Interacting with contract at ${contractAddress} ---`);
   const provider = useProvider();
   const { data: signer } = useSigner();
   const readContract = useContract({
