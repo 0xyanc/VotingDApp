@@ -16,8 +16,8 @@ const Admin = () => {
   const [adminAddress, setAdminAddress] = useState(null);
 
   useEffect(() => {
-    if (isConnected) getContractOwner();
-  }, [isConnected]);
+    getContractOwner();
+  }, []);
 
   const getContractOwner = async () => {
     const owner = await readContract.owner();
@@ -29,12 +29,12 @@ const Admin = () => {
       <Flex direction="column" w="100%" alignItems="center">
         <WorkflowStatus />
         {isConnected ? (
-          // address === adminAddress ? (
-          <ChangeStatus />
+          address === adminAddress ? (
+            <ChangeStatus />
+          ) : (
+            <Heading size="lg">You are not the admin.</Heading>
+          )
         ) : (
-          // ) : (
-          //   <Heading size="lg">You are not the admin.</Heading>
-          // )
           <Heading size="lg">Connect your wallet to start.</Heading>
         )}
         <Divider mt="1rem" mb="1rem" />
