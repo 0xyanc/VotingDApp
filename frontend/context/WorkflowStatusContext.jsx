@@ -6,7 +6,7 @@ export const useWorkflowStatusProvider = () => {
   const context = useContext(WorkflowStatusContext);
 
   if (context === undefined) {
-    throw new Error("useWorkflowStatusProvider was used outside of its Provider");
+    throw new Error("useWorkflowStatusProvider must be used within a WorkflowStatusContext");
   }
 
   return context;

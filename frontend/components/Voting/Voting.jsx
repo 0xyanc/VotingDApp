@@ -1,8 +1,8 @@
 import { useContractProvider } from "@/context/ContractContext";
 import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
-import { Alert, AlertIcon, Button, Divider, Flex } from "@chakra-ui/react";
+import { Alert, AlertIcon, Divider, Flex } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useAccount, useProvider, useSigner } from "wagmi";
+import { useAccount } from "wagmi";
 import AddProposal from "../AddProposal/AddProposal";
 import ListProposals from "../ListProposals/ListProposals";
 import WorkflowStatus from "../WorkflowStatus/WorkflowStatus";
