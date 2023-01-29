@@ -39,7 +39,6 @@ const ListVoters = () => {
     let voterRegisteredEvents = [];
     for (let startBlock = contractDeployBlock; startBlock < currentBlockNumber; startBlock += 3000) {
       const endBlock = Math.min(currentBlockNumber, startBlock + 2999);
-      console.log(`Start block ${startBlock} -- End block ${endBlock}`);
       const events = await readContract.queryFilter("VoterRegistered", startBlock, endBlock);
       voterRegisteredEvents = [...voterRegisteredEvents, ...events];
     }
