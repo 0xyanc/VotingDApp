@@ -87,7 +87,7 @@ const ListProposals = ({ voter, setVoter }) => {
     let proposalRegisteredEvents = [];
     for (let startBlock = contractDeployBlock; startBlock < currentBlockNumber; startBlock += 5000) {
       const endBlock = Math.min(currentBlockNumber, startBlock + 4999);
-      const events = await readContract.queryFilter("ProposalRegistered", contractDeployBlock, endBlock);
+      const events = await readContract.queryFilter("ProposalRegistered", startBlock, endBlock);
       proposalRegisteredEvents = [...proposalRegisteredEvents, ...events];
     }
 

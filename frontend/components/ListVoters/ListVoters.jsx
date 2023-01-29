@@ -39,7 +39,7 @@ const ListVoters = () => {
     let voterRegisteredEvents = [];
     for (let startBlock = contractDeployBlock; startBlock < currentBlockNumber; startBlock += 5000) {
       const endBlock = Math.min(currentBlockNumber, startBlock + 4999);
-      const events = await readContract.queryFilter("VoterRegistered", contractDeployBlock, endBlock);
+      const events = await readContract.queryFilter("VoterRegistered", startBlock, endBlock);
       voterRegisteredEvents = [...voterRegisteredEvents, ...events];
     }
     // add all the whitelisted voters to the list
