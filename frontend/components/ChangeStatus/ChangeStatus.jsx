@@ -14,7 +14,7 @@ const ChangeStatus = () => {
     try {
       setWaitTransaction(true);
       const transaction = await writeContract.startProposalsRegistering();
-      transaction.wait(1);
+      await transaction.wait(1);
     } catch (err) {
       console.log(err);
     } finally {
@@ -36,7 +36,7 @@ const ChangeStatus = () => {
     try {
       setWaitTransaction(true);
       const transaction = await writeContract.startVotingSession();
-      transaction.wait(1);
+      await transaction.wait(1);
     } catch (err) {
       console.log(err);
     } finally {
@@ -47,7 +47,7 @@ const ChangeStatus = () => {
     try {
       setWaitTransaction(true);
       const transaction = await writeContract.endVotingSession();
-      transaction.wait(1);
+      await transaction.wait(1);
     } catch (err) {
       console.log(err);
     } finally {
@@ -58,7 +58,7 @@ const ChangeStatus = () => {
     try {
       setWaitTransaction(true);
       const transaction = await writeContract.tallyVotes();
-      transaction.wait(1);
+      await transaction.wait(1);
     } catch (err) {
       console.log(err);
     } finally {
