@@ -81,8 +81,17 @@ const ListProposals = ({ voter, setVoter }) => {
   };
 
   const loadProposals = async () => {
+    // retrieve all ProposalRegistered events by batch of 5000 blocks
     const contractDeployBlock = parseInt(process.env.NEXT_PUBLIC_SC_DEPLOY_BLOCK);
-    let proposalRegisteredEvents = await readContract.queryFilter("ProposalRegistered", contractDeployBlock);
+    const currentBlockNumber = await provider.getBlockNumber();
+    let proposalRegisteredEvents = [];
+    for (let startBlock = contractDeployBlock; startBlock < currentBlockNumber; startBlock += 5000) {
+      const endBlock = Math.min(currentBlockNumber, startBlock + 4999);
+      const events = await readContract.queryFilter("ProposalRegistered", contractDeployBlock, endBlock);
+      proposalRegisteredEvents = [...proposalRegisteredEvents, ...events];
+    }
+
+    // build proposal list from the retrieved events
     let proposalList = [];
     for (const event of proposalRegisteredEvents) {
       const proposalId = event.args.proposalId.toString();

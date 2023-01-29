@@ -33,8 +33,16 @@ const ListVoters = () => {
   };
 
   const loadVoters = async () => {
+    // retrieve all ProposalRegistered events by batch of 5000 blocks
     const contractDeployBlock = parseInt(process.env.NEXT_PUBLIC_SC_DEPLOY_BLOCK);
-    let voterRegisteredEvents = await readContract.queryFilter("VoterRegistered", contractDeployBlock);
+    const currentBlockNumber = await provider.getBlockNumber();
+    let voterRegisteredEvents = [];
+    for (let startBlock = contractDeployBlock; startBlock < currentBlockNumber; startBlock += 5000) {
+      const endBlock = Math.min(currentBlockNumber, startBlock + 4999);
+      const events = await readContract.queryFilter("VoterRegistered", contractDeployBlock, endBlock);
+      voterRegisteredEvents = [...voterRegisteredEvents, ...events];
+    }
+    // add all the whitelisted voters to the list
     let voterList = [];
     voterRegisteredEvents.map((event) => voterList.push(event.args.voterAddress));
     setVoters(voterList);
