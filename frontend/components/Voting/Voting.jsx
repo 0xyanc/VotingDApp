@@ -1,15 +1,14 @@
 import { useContractProvider } from "@/context/ContractContext";
 import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
-import { Alert, AlertIcon, Divider, Flex, Heading, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Divider, Flex } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useProvider, useSigner } from "wagmi";
 import AddProposal from "../AddProposal/AddProposal";
 import ListProposals from "../ListProposals/ListProposals";
 import WorkflowStatus from "../WorkflowStatus/WorkflowStatus";
 
 const Voting = () => {
   const { readContract, provider } = useContractProvider();
-
   const { address, isConnected } = useAccount();
   const workflowStatus = useWorkflowStatusReadProvider();
 
@@ -37,7 +36,7 @@ const Voting = () => {
 
   const checkVoterAddress = async () => {
     try {
-      const voter = await readContract.getVoter(address);
+      const voter = await readContract.connect(address).getVoter(address);
       setVoter({
         isRegistered: voter.isRegistered,
         hasVoted: voter.hasVoted,
@@ -56,7 +55,7 @@ const Voting = () => {
           <Flex>
             <Alert status="info">
               <AlertIcon />
-              Please wait for the admin to start the proposal registration phase
+              You are whitelisted! Please wait for the admin to start the proposal registration phase
             </Alert>
           </Flex>
         );
@@ -102,6 +101,7 @@ const Voting = () => {
         return <></>;
     }
   };
+
   return (
     <>
       <Flex direction="column" w="100%" alignItems="center">

@@ -71,7 +71,7 @@ const ListProposals = ({ voter, setVoter }) => {
   const registerProposalListener = async (proposalId, event, startBlockNumber) => {
     if (event.blockNumber <= startBlockNumber) return;
     let proposalList = [...proposalsRef.current];
-    const proposal = await readContract.getOneProposal(proposalId);
+    const proposal = await readContract.connect(address).getOneProposal(proposalId);
     proposalList.push({
       id: proposalId.toString(),
       description: proposal.description,
@@ -86,7 +86,7 @@ const ListProposals = ({ voter, setVoter }) => {
     let proposalList = [];
     for (const event of proposalRegisteredEvents) {
       const proposalId = event.args.proposalId.toString();
-      const proposal = await readContract.getOneProposal(proposalId);
+      const proposal = await readContract.connect(address).getOneProposal(proposalId);
       proposalList.push({
         id: proposalId,
         description: proposal.description,
@@ -98,7 +98,7 @@ const ListProposals = ({ voter, setVoter }) => {
 
   const getWinningProposal = async () => {
     const winningId = await readContract.winningProposalID();
-    const winningProposal = await readContract.getOneProposal(winningId);
+    const winningProposal = await readContract.connect(address).getOneProposal(winningId);
     setWinningProposal({
       description: winningProposal.description,
       voteCount: winningProposal.voteCount.toString(),
