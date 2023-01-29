@@ -13,7 +13,7 @@ const AddProposal = () => {
     try {
       setWaitTransaction(true);
       const transaction = await writeContract.addProposal(proposal);
-      await transaction.wait(1);
+      const receipt = await transaction.wait(1);
       toast({
         title: "Proposal submitted",
         description: "The proposal has successfully been submitted",

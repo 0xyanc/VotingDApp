@@ -27,7 +27,7 @@ const AddVoter = () => {
       setWaitTransaction(true);
       const transaction = await writeContract.addVoter(voter);
       console.log(voter);
-      await transaction.wait(1);
+      const receipt = await transaction.wait(1);
       toast({
         title: "Voter added",
         description: "The voter has successfully been added to the whitelist",
