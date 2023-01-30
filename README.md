@@ -5,7 +5,7 @@ It was also improved to secure against a Denial of Service attack.
 
 ## Links to the DApp
 
-https://voting-d-app-0xyanc.vercel.app/
+https://voting-d-app-0xyanc.vercel.app/  
 https://voting-d-app-0xyanc.vercel.app/admin
 
 ## Video
