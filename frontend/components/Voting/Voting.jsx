@@ -12,7 +12,7 @@ const Voting = () => {
   const { address, isConnected } = useAccount();
   const workflowStatus = useWorkflowStatusReadProvider();
 
-  const [voter, setVoter] = useState(null);
+  const [voter, setVoter] = useState({ address, isRegistered: false });
   useEffect(() => {
     if (isConnected) {
       checkVoterAddress();
@@ -38,13 +38,13 @@ const Voting = () => {
     try {
       const voter = await readContract.connect(address).getVoter(address);
       setVoter({
+        address,
         isRegistered: voter.isRegistered,
         hasVoted: voter.hasVoted,
         votedProposalId: voter.votedProposalId.toString(),
       });
     } catch (err) {
       console.log(err);
-      setVoter(null);
     }
   };
 
@@ -88,15 +88,6 @@ const Voting = () => {
             </Alert>
           </Flex>
         );
-      case 5:
-        return (
-          <Flex>
-            <Alert status="success">
-              <AlertIcon />
-              The winning proposal has been declared, please check it below!
-            </Alert>
-          </Flex>
-        );
       default:
         return <></>;
     }
@@ -107,7 +98,18 @@ const Voting = () => {
       <Flex direction="column" w="100%" alignItems="center">
         <WorkflowStatus />
         {isConnected ? (
-          voter && voter.isRegistered ? (
+          workflowStatus === 5 ? (
+            <>
+              <Flex>
+                <Alert status="success">
+                  <AlertIcon />
+                  The winning proposal has been declared, please check it below!
+                </Alert>
+              </Flex>
+              <Divider mt="1rem" mb="1rem" />
+              <ListProposals voter={voter} />
+            </>
+          ) : voter && voter.isRegistered ? (
             <>
               {renderAddProposalOrInfoBox()}
               <Divider mt="1rem" mb="1rem" />

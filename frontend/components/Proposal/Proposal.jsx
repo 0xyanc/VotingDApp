@@ -3,7 +3,7 @@ import { useWorkflowStatusReadProvider } from "@/context/WorkflowStatusContext";
 import { Button, Text, Card, CardBody, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 
-const Proposal = ({ proposal, hasVoted }) => {
+const Proposal = ({ proposal, hasVoted, isRegistered }) => {
   const workflowStatus = useWorkflowStatusReadProvider();
   const { writeContract } = useContractProvider();
   const toast = useToast();
@@ -53,19 +53,30 @@ const Proposal = ({ proposal, hasVoted }) => {
   return (
     <Card m="1rem" minWidth={["100%", "100%", "30%", "30%"]} ml="1%" mr="1%">
       <CardBody>
-        <Text mt="1rem" mb="1rem">
-          <Text as="span" fontWeight="bold">
-            Description
+        {isRegistered ? (
+          <>
+            <Text mt="1rem" mb="1rem">
+              <Text as="span" fontWeight="bold">
+                Description
+              </Text>
+              : {proposal.description}
+            </Text>
+            <Text mt="1rem" mb="1rem">
+              <Text as="span" fontWeight="bold">
+                Vote Count
+              </Text>
+              : {proposal.voteCount}
+            </Text>
+            {renderVoteButton()}
+          </>
+        ) : (
+          <Text mt="1rem" mb="1rem">
+            <Text as="span" fontWeight="bold">
+              Id of winning proposal
+            </Text>
+            : {proposal.id}
           </Text>
-          : {proposal.description}
-        </Text>
-        <Text mt="1rem" mb="1rem">
-          <Text as="span" fontWeight="bold">
-            Vote Count
-          </Text>
-          : {proposal.voteCount}
-        </Text>
-        {renderVoteButton()}
+        )}
       </CardBody>
     </Card>
   );

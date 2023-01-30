@@ -54,6 +54,7 @@ const ListProposals = ({ voter, setVoter }) => {
     setProposals(updatedProposals);
     if (address === voterAddress) {
       setVoter({
+        address,
         isRegistered: true,
         hasVoted: true,
         votedProposalId: propIdFromBN,
@@ -91,41 +92,54 @@ const ListProposals = ({ voter, setVoter }) => {
       proposalRegisteredEvents = [...proposalRegisteredEvents, ...events];
     }
 
-    // build proposal list from the retrieved events
-    let proposalList = [];
-    for (const event of proposalRegisteredEvents) {
-      const proposalId = event.args.proposalId.toString();
-      const proposal = await readContract.connect(address).getOneProposal(proposalId);
-      proposalList.push({
-        id: proposalId,
-        description: proposal.description,
-        voteCount: proposal.voteCount.toString(),
-      });
+    if (voter.isRegistered) {
+      // build proposal list from the retrieved events
+      let proposalList = [];
+      for (const event of proposalRegisteredEvents) {
+        const proposalId = event.args.proposalId.toString();
+        const proposal = await readContract.connect(address).getOneProposal(proposalId);
+        proposalList.push({
+          id: proposalId,
+          description: proposal.description,
+          voteCount: proposal.voteCount.toString(),
+        });
+      }
+      setProposals(proposalList);
     }
-    setProposals(proposalList);
   };
 
   const getWinningProposal = async () => {
     const winningId = await readContract.winningProposalID();
-    const winningProposal = await readContract.connect(address).getOneProposal(winningId);
-    setWinningProposal({
-      description: winningProposal.description,
-      voteCount: winningProposal.voteCount.toString(),
-      id: winningId.toString(),
-    });
+    if (voter.isRegistered) {
+      const winningProposal = await readContract.connect(address).getOneProposal(winningId);
+      setWinningProposal({
+        description: winningProposal.description,
+        voteCount: winningProposal.voteCount.toString(),
+        id: winningId.toString(),
+      });
+    } else {
+      setWinningProposal({ id: winningId.toString() });
+    }
   };
 
   return (
     <>
       {workflowStatus === 5 ? (
-        <Proposal proposal={winningProposal} />
+        <Proposal proposal={winningProposal} isRegistered={voter.isRegistered} />
       ) : (
         <>
           <Text as="b">Registered Proposals</Text>
           <Flex width="100%" direction={["column", "column", "row", "row"]} alignItems="center" flexWrap="wrap">
             {proposalsRef.current.length !== 0 ? (
               proposalsRef.current.map((proposal) => {
-                return <Proposal proposal={proposal} key={proposal.id} hasVoted={voter.hasVoted} />;
+                return (
+                  <Proposal
+                    proposal={proposal}
+                    key={proposal.id}
+                    hasVoted={voter.hasVoted}
+                    isRegistered={voter.isRegistered}
+                  />
+                );
               })
             ) : (
               <Flex height="100%" width="100%" alignItems="center" justifyContent="center">

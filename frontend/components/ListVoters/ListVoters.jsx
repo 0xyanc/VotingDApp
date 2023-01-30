@@ -66,7 +66,7 @@ const ListVoters = () => {
             </List>
           </>
         ) : (
-          <Alert status="info">
+          <Alert status="warning">
             <AlertIcon />
             No Voter has been registered yet.
           </Alert>

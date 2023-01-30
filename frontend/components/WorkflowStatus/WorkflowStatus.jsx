@@ -16,15 +16,12 @@ const WorkflowStatus = () => {
 
   const getWorkflowStatus = async () => {
     const status = await readContract.workflowStatus();
-    console.log(`WorkflowStatus is ${status}`);
     setWorkflowStatus(status);
   };
 
   const subscribeToStatusEvents = async () => {
-    console.log("Subscribe to WorkflowStatus Event");
     readContract.on("WorkflowStatusChange", (previousStatus, newStatus) => {
       setWorkflowStatus(newStatus);
-      console.log(`WorkflowStatus is ${newStatus}`);
     });
   };
 
